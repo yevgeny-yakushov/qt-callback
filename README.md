@@ -28,8 +28,9 @@
 
 //    Пример:
 
-class A
+class A : public QObject
 {
+    Q_OBJECT
 //...
     signals:
         void sig1();
@@ -37,13 +38,15 @@ class A
 
 class B : public A
 {
+    Q_OBJECT
 //...
     signals:
         void sig2();
 };
 
-class C
+class C : public CQIBase
 {
+    Q_OBJECT
 //...
     signals:
         void sig1(); // Сигнал объекта B, наследованный от A
@@ -62,7 +65,7 @@ connect(B, &B::sig2, this, &C::sig2); // коннект в классе С
 
 // на простой вызов метода:
 
-redirectSignals(объект);
+redirectSignals(m_pB);
 
 //    В данном примере всего лишь 2 сигнала, а не 100, например.
 
