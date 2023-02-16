@@ -1,7 +1,6 @@
 #ifndef QIBASE_H
 #define QIBASE_H
 
-//#include "Kernel/OdsInterface.h"
 #include "promise.h"
 
 #include <QMutexLocker>
@@ -60,12 +59,11 @@ class CQIBase : public CQICounterTask
     Q_OBJECT
 
 protected:
-    CQIBase();
-    //CQIBase(ODS::OdsInterface* pIFace);
+    CQIBase(/* Connection* pDbCon */);
     ~CQIBase() {}
 
 protected:
-    //bool                    isReadyExec();
+    bool                    isReadyExec();
     void                    redirectSignals(const QObject* sender); // См. описание после класса
 
 protected:
@@ -138,7 +136,7 @@ private:
     // Проверяет наличии сигнала с сигнатурой в собственном классе
     bool                    signalExists(const char* signature);
 
-private: // Обертка в ODS register и unregister thread
+private:
     void                    registerThread();
     void                    unregisterThread();
 
@@ -147,7 +145,8 @@ signals:
     void                    notifyError(const QString& ntf);
 
 protected:
-    //ODS::OdsInterface* m_pIFace;
+    //Some connection pointer to DB
+    // Connection* m_dbCon;
 };
 
 #endif // QIBASE_H

@@ -58,25 +58,25 @@ void CQICounterTask::deleteTask()
 }
 
 /*------ CQIBase ------------------------------------------*/
-CQIBase::CQIBase(/*ODS::OdsInterface* pIFace*/) :
+CQIBase::CQIBase(/* Connection* pDbCon */) :
     CQICounterTask()//,
-    //m_pIFace(pIFace)
+    //m_dbCon(pDbCon)
 {
 
 }
 
 /*----------- isReadyExec ---------------------------------*/
-//bool CQIBase::isReadyExec()
-//{
-//    if (!m_pIFace) return false;
-//    if (!m_pIFace->connectionManager().isConnected(ODS::ConnectionCheck::ForCurrentThread))
-//    {
-//        emit notification("Соединение потеряно");
-//        return false;
-//    }
-//
-//    return true;
-//}
+bool CQIBase::isReadyExec()
+{
+    /*if (!m_dbCon) return false;
+    if (!m_dbCon->isConnected())
+    {
+        emit notification("Соединение потеряно");
+        return false;
+    }*/
+
+    return true;
+}
 
 /*----------- redirectSignals -----------------------------*/
 void CQIBase::redirectSignals(const QObject* sender)
@@ -144,13 +144,13 @@ bool CQIBase::signalExists(const char* signature)
 void CQIBase::registerThread()
 {
     qDebug() << "Register thread";
-    //m_pIFace->connectionManager().registerThread();
+    //m_dbCon->registerThread();
 }
 
 /*----------- unregisterThread ----------------------------*/
 void CQIBase::unregisterThread()
 {
     qDebug() << "Unregister thread";
-    //m_pIFace->connectionManager().unregisterThread();
+    //m_dbCon->unregisterThread();
 }
 
