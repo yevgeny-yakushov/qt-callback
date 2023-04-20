@@ -63,70 +63,35 @@ protected:
     ~CQIBase() {}
 
 protected:
-    bool                    isReadyExec();
-    void                    redirectSignals(const QObject* sender); // См. описание после класса
+    bool    isReadyExec();
+    void    redirectSignals(const QObject* sender);
 
 protected:
 
-    // Call class method and simple function -> return type is void
+    // Call class method, simple function and lambda
     template <typename F, typename... Args>
-    auto startTask(int task, F&& f, Args&&... args) -> typename std::enable_if<std::is_void<decltype(ret(f))>::value, CTask<void>*>::type
+    auto startTask(int task, F&& f, Args&&... args) -> typename CTask<std::invoke_result_t<F, Args...>>*
     {
         auto wrapperFn = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
 
-        return createTask(task, QtConcurrent::run([=]() {
+        using R = std::invoke_result_t<F, Args...>;
+
+        return createTask(task, QtConcurrent::run([=]() -> R {
             addTask(task);
             registerThread();
-            wrapperFn();
-            unregisterThread();
-            delTask(task);
-        }));
-    }
-
-    // Call class method and simple function -> return type is non void
-    template <typename F, typename... Args>
-    auto startTask(int task, F&& f, Args&&... args) -> typename std::enable_if<!std::is_void<decltype(ret(f))>::value, CTask<decltype(ret(f))>*>::type
-    {
-        auto wrapperFn = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
-
-        return createTask(task, QtConcurrent::run([=]() -> auto {
-            addTask(task);
-            registerThread();
-            auto res = wrapperFn();
-            unregisterThread();
-            delTask(task);
-            return res;
-        }));
-    }
-
-    // Call lambda -> return type is void
-    template <typename F>
-    auto startTask(int task, F&& f) -> typename std::enable_if<std::is_class_v<F> && std::is_void_v<std::result_of_t<F()>>, CTask<void>*>::type
-    {
-        auto wrapperFn = std::bind(std::forward<F>(f));
-
-        return createTask(task, QtConcurrent::run([=]() {
-            addTask(task);
-            registerThread();
-            wrapperFn();
-            unregisterThread();
-            delTask(task);
-        }));
-    }
-
-    // Call lambda -> return type is non void
-    template <typename F>
-    auto startTask(int task, F&& f) -> typename std::enable_if<std::is_class_v<F> && !std::is_void_v<std::result_of_t<F()>>, CTask<typename std::result_of_t<F()>>*>::type
-    {
-        auto wrapperFn = std::bind(std::forward<F>(f));
-
-        return createTask(task, QtConcurrent::run([=]() -> auto {
-            addTask(task);
-            registerThread();
-            auto res = wrapperFn();
-            unregisterThread();
-            delTask(task);
-            return res;
+            if constexpr (std::is_void_v<R>)
+            {
+                wrapperFn();
+                unregisterThread();
+                delTask(task);
+            }
+            else
+            {
+                R res = wrapperFn();
+                unregisterThread();
+                delTask(task);
+                return res;
+            }
         }));
     }
 

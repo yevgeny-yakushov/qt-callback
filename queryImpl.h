@@ -21,7 +21,7 @@ public:
     void    startTest       (int val1, int val2);
                                                
 public:                                        
-    void    callBackTest    (int val1, int val2);
+    void    callBackTest    (int val1 = 123, int val2 = 234);
 
 private:
     int     largeMethod     (int val1, int val2, int val3);

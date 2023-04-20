@@ -32,7 +32,7 @@ void CQueryImpl::startTest(int val1, int val2)
         // Example for non void
         //->then([=](int res)         { qDebug() << "THIS IS LAMBDA\t" << res; })
         //->then([=]() -> int         { qDebug() << "THIS IS LAMBDA\t"; return 5; })
-        //->then([=](int res) -> int  { qDebug() << "THIS IS LAMBDA\t" << res; return 5; });
+        //->then([=](int res) -> int  { qDebug() << "THIS IS LAMBDA\t" << res; return 5; })
 
         // Example for void
         //->then([=]() -> int         { qDebug() << "THIS IS LAMBDA\t"; return 5; })
@@ -44,11 +44,21 @@ void CQueryImpl::startTest(int val1, int val2)
     })->then([]() { qDebug() << "After thread 1 lambda: "; });
 
 
-    startTask(ETASKS_TESTING_LAMBDA, [=]() -> int {
+    startTask(ETASKS_TESTING_LAMBDA, [=]() -> std::vector<double> {
         qDebug() << "Thread lambda 2";
+
+        std::vector<double> vec(100000000, 12345678.0);
         std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-        return 11;
-    })->then([](int res) { qDebug() << "Result from thread 2 lambda: " << res; });
+
+        return vec;
+    })->then([](const std::vector<double>& res) -> const std::vector<double>& {
+        qDebug() << "Result from thread lambda: " << res.size();
+        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+        return res;
+    })->then([](const std::vector<double>& res) {
+        qDebug() << "Result from thread 2 lambda: " << res.size();
+        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+    });
 }
 
 void CQueryImpl::callBackTest(int val1, int val2)
