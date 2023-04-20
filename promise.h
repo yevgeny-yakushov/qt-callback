@@ -16,7 +16,7 @@ template <typename T>
 // === SForwardValue (Primary) ==========================================================
 struct SForwardValue
 {
-    SForwardValue(std::remove_reference_t<T> _value) : value(std::move(_value)) {}
+    SForwardValue(T&& _value) : value(std::forward<T>(_value)) { }
     T value;
 };
 
